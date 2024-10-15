@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "222895740379",
+    "firebase_url": "https://quotify-99607-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "quotify-99607",
+    "storage_bucket": "quotify-99607.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222895740379:android:53dfb6a4a4f732c2e083fe",
+        "android_client_info": {
+          "package_name": "com.example.quotify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJ1wNwg60G0Y0FnOE6fOhuQXH9JfiF-WU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
