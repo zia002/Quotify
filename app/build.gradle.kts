@@ -47,7 +47,11 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation (libs.kotlinx.coroutines.core) // For coroutines
+    implementation (libs.kotlinx.coroutines.android)
+    implementation (libs.firebase.auth.v2130)
 }
