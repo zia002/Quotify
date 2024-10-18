@@ -6,45 +6,45 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     >
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="200dp"
-    >
-
-    <ImageView
-        android:id="@+id/imageHolder"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:padding="15dp"
-        />
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_margin="2dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:boxStrokeColor="#03A9F4"
-        app:boxStrokeWidth="2dp"
-        android:hint="Quote"
-        android:gravity="top"
-        app:hintTextColor="#000000"
         >
-        <com.google.android.material.textfield.TextInputEditText
+
+        <ImageView
+            android:id="@+id/imageHolder"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:padding="15dp"
+            />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_margin="2dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:boxStrokeColor="#03A9F4"
             app:boxStrokeWidth="2dp"
-            android:id="@+id/quote"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="top"
+            android:hint="Quote"
             android:gravity="top"
-            android:maxLength="144"
-            />
+            app:hintTextColor="#000000"
+            >
+            <com.google.android.material.textfield.TextInputEditText
+                app:boxStrokeColor="#03A9F4"
+                app:boxStrokeWidth="2dp"
+                android:id="@+id/quote"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="top"
+                android:gravity="top"
+                android:maxLength="144"
+                />
 
-    </com.google.android.material.textfield.TextInputLayout>
-</RelativeLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+    </RelativeLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout2"
@@ -81,21 +81,21 @@
         android:gravity="center"
         android:padding="5dp"
         >
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/postQuote"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Post"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:background="#16AF1D"
-        android:visibility="visible"
-        android:fontFamily="serif"
-        android:textStyle="bold"
-        android:layout_weight="1"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/postQuote"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Post"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:background="#16AF1D"
+            android:visibility="visible"
+            android:fontFamily="serif"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            />
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/deleteQuote"
             android:layout_width="0dp"
@@ -113,10 +113,11 @@
             />
         <ImageButton
             android:id="@+id/addImage"
-            android:layout_width="34dp"
-            android:layout_height="34dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:scaleType="fitXY"
             android:layout_gravity="center"
+            android:background="@drawable/ic_launcher_background"
             />
     </LinearLayout>
 </LinearLayout>

@@ -1,19 +1,30 @@
 package com.example.quotify.view
 
+import android.Manifest
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,12 +37,17 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.squareup.picasso.Callback
+import com.squareup.picasso.Picasso
+import java.lang.Exception
 
-data class Quote(var id:String?,var quote:String?,var author:String?){
-    constructor() : this(null,null, null)
+data class Quote(var id:String?,var quote:String?,var author:String?,var imageURL:String?){
+    constructor() : this(null,null, null,null)
 }
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
+    private var imageUri:Uri?=null
     private var quoteList=ArrayList<Quote>()
     private  lateinit var quoteAdapter:QuoteAdapter
     private val database=FirebaseDatabase.getInstance()
@@ -40,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //registerActivityForResult()
         //======= here getting all the data ======//
         binding.progressBar.visibility=View.VISIBLE
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -59,36 +76,8 @@ class MainActivity : AppCompatActivity() {
         }).attachToRecyclerView(binding.recyclerView)
         //======= adding new quote ========//
         binding.addNew.setOnClickListener {
-            val customDialog=layoutInflater.inflate(R.layout.add_quote,null)
-            val dialog=Dialog(this)
-            dialog.setContentView(customDialog)
-            val post=dialog.findViewById<AppCompatButton>(R.id.postQuote)
-            val quote=dialog.findViewById<TextInputEditText>(R.id.quote)
-            dialog.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            dialog.show()
-            post.setOnClickListener {
-                if(quote.text.toString().isNotEmpty()){
-                    //======= post the quote here =======//
-                    val quoteData=quote.text.toString()
-                    addQuote(quoteData,dataReference)
-                }
-                dialog.dismiss()
-            }
+            startActivity(Intent(this,AddQuoteActivity::class.java))
         }
-    }
-    private fun addQuote(quote:String,addDataReference: DatabaseReference) {
-        val id=addDataReference.push().key.toString()
-        val quoteBundle=Quote(id,quote,"Zia")
-        addDataReference.child(id).setValue(quoteBundle).addOnCompleteListener { task->
-            if(task.isSuccessful) {
-                Toast.makeText(this,"Successful",Toast.LENGTH_SHORT).show()
-            }
-            else Toast.makeText(this,task.exception.toString(),Toast.LENGTH_SHORT).show()
-        }
-        quoteList.clear()
     }
     private fun getQuote() {
         dataReference.addValueEventListener(object : ValueEventListener{
@@ -134,13 +123,33 @@ class MainActivity : AppCompatActivity() {
 class QuoteAdapter(private val context: MainActivity, private val dataList: List<Quote>,val dataReference: DatabaseReference?):RecyclerView.Adapter<QuoteAdapter.MyViewHolder>(){
     inner class MyViewHolder(view: View):RecyclerView.ViewHolder(view){
         val quoteText: TextView =view.findViewById(R.id.quoteText)
+        val quoteImage:ImageView=view.findViewById(R.id.quoteImage)
+        val loader:ProgressBar=view.findViewById(R.id.loading)
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuoteAdapter.MyViewHolder {
         val view=LayoutInflater.from(context).inflate(R.layout.custom_item,parent,false)
         return MyViewHolder(view)
     }
     override fun onBindViewHolder(holder: QuoteAdapter.MyViewHolder, position: Int) {
+        holder.loader.visibility=View.VISIBLE
+
+        val imageURL=dataList[position].imageURL
+        val uri = Uri.parse(imageURL)
+        context.grantUriPermission(
+            context.packageName,
+            uri,
+            Intent.FLAG_GRANT_READ_URI_PERMISSION
+        )
         holder.quoteText.text=dataList[position].quote+"-"+dataList[position].author
+        Picasso.get().load(uri).into(holder.quoteImage,object :Callback{
+            override fun onSuccess() {
+                holder.loader.visibility=View.GONE
+            }
+            override fun onError(e: Exception?) {
+               Toast.makeText(context,e.toString(),Toast.LENGTH_SHORT).show()
+            }
+        })
+
         //=========== control here the update Quote or Delete the Quote ==============//
         holder.quoteText.setOnClickListener {
             //======= create the dialog and show these data in the custom dialog ========//
