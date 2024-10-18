@@ -94,30 +94,30 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-    //======= for controlling the menu item =====//
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_option,menu)
-        return true
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId==R.id.logout){
-            showDialogConfirm()
-        }
-        return super.onOptionsItemSelected(item)
-    }
-    private fun showDialogConfirm(){
-        val dialog=AlertDialog.Builder(this)
-        dialog.setTitle("Logout")
-        dialog.setMessage("Are you sure to log out?")
-        dialog.setPositiveButton("Yes",DialogInterface.OnClickListener { dialog, which ->
-            startActivity(Intent(this,LoginActivity::class.java))
-            finish()
-        })
-        dialog.setNegativeButton("No",DialogInterface.OnClickListener { dialog, which ->
-            dialog.dismiss()
-        })
-        dialog.create().show()
-    }
+//    //======= for controlling the menu item =====//
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.menu_option,menu)
+//        return true
+//    }
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        if (item.itemId==R.id.logout){
+//            showDialogConfirm()
+//        }
+//        return super.onOptionsItemSelected(item)
+//    }
+//    private fun showDialogConfirm(){
+//        val dialog=AlertDialog.Builder(this)
+//        dialog.setTitle("Logout")
+//        dialog.setMessage("Are you sure to log out?")
+//        dialog.setPositiveButton("Yes",DialogInterface.OnClickListener { dialog, which ->
+//            startActivity(Intent(this,LoginActivity::class.java))
+//            finish()
+//        })
+//        dialog.setNegativeButton("No",DialogInterface.OnClickListener { dialog, which ->
+//            dialog.dismiss()
+//        })
+//        dialog.create().show()
+//    }
 }
 
 class QuoteAdapter(private val context: MainActivity, private val dataList: List<Quote>,val dataReference: DatabaseReference?):RecyclerView.Adapter<QuoteAdapter.MyViewHolder>(){
@@ -132,63 +132,22 @@ class QuoteAdapter(private val context: MainActivity, private val dataList: List
     }
     override fun onBindViewHolder(holder: QuoteAdapter.MyViewHolder, position: Int) {
         holder.loader.visibility=View.VISIBLE
-
         val imageURL=dataList[position].imageURL
         val uri = Uri.parse(imageURL)
-        context.grantUriPermission(
-            context.packageName,
-            uri,
-            Intent.FLAG_GRANT_READ_URI_PERMISSION
-        )
+        context.grantUriPermission(context.packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         holder.quoteText.text=dataList[position].quote+"-"+dataList[position].author
-        Picasso.get().load(uri).into(holder.quoteImage,object :Callback{
-            override fun onSuccess() {
-                holder.loader.visibility=View.GONE
-            }
-            override fun onError(e: Exception?) {
-               Toast.makeText(context,e.toString(),Toast.LENGTH_SHORT).show()
-            }
+        if (uri!=null) Picasso.get().load(uri).into(holder.quoteImage,object :Callback{
+            override fun onSuccess() { holder.loader.visibility=View.GONE }
+            override fun onError(e: Exception?) { Toast.makeText(context,e.toString(),Toast.LENGTH_SHORT).show() }
         })
-
         //=========== control here the update Quote or Delete the Quote ==============//
+        val intent=Intent(context,UpdateActivity::class.java)
+        intent.putExtra("quote",dataList[position].quote)
+        intent.putExtra("author",dataList[position].author)
+        intent.putExtra("id",dataList[position].id)
+        intent.putExtra("uri",uri.toString())
         holder.quoteText.setOnClickListener {
-            //======= create the dialog and show these data in the custom dialog ========//
-            val customDialog = LayoutInflater.from(context).inflate(R.layout.add_quote, null)
-            val dialog = Dialog(context)
-            dialog.setContentView(customDialog)
-            val quote = dialog.findViewById<TextInputEditText>(R.id.quote)
-            val update = dialog.findViewById<AppCompatButton>(R.id.postQuote)
-            val delete = dialog.findViewById<AppCompatButton>(R.id.deleteQuote)
-            quote.setText(dataList[position].quote.toString())
-            delete.visibility=View.VISIBLE
-            update.text="Update"
-            dialog.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            dialog.show()
-            //======== here we update the quote ========//
-            update.setOnClickListener {
-                val quoteMap = mutableMapOf<String, Any>()
-                quoteMap["id"] = dataList[position].id.toString()
-                quoteMap["quote"] =quote.text.toString()
-                quoteMap["author"]=dataList[position].author.toString()
-                dataReference?.child(dataList[position].id.toString())?.updateChildren(quoteMap)
-                    ?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) Toast.makeText(
-                            context,
-                            "Updated",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                dialog.dismiss()
-            }
-            //======= here we delete the data ========//
-            delete.setOnClickListener {
-                dataReference?.child(dataList[position].id.toString())?.removeValue()
-                Toast.makeText(context,"Deleted Quote",Toast.LENGTH_SHORT).show()
-                dialog.dismiss()
-            }
+            context.startActivity(intent)
         }
     }
     override fun getItemCount(): Int {return dataList.size}

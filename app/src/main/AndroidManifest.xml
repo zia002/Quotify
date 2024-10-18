@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Quotify"
         tools:targetApi="31">
         <activity
+            android:name=".view.UpdateActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.AddQuoteActivity"
             android:exported="false" />
         <activity
@@ -38,7 +41,7 @@
         </activity>
         <activity
             android:name=".view.MainActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
 
         <service
             android:name=".MyFirebaseService"
