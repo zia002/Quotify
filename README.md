@@ -5,3 +5,6 @@
 4.Forget password and reset password <br>
 5.User can post quote <br>
 6.Firebase FCM feature <br>
+7.Firebase storage feature <br>
+8.upload quote with image  <br>
+9.Edit quote , change image and update <br>
