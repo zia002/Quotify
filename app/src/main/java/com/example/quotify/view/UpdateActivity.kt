@@ -29,7 +29,7 @@ class UpdateActivity : AppCompatActivity() {
     private var author: String = ""
     private var id: String= ""
     private var uri: Uri?= null
-
+    private var imgName:String?=null
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private val database= FirebaseDatabase.getInstance()
@@ -46,6 +46,7 @@ class UpdateActivity : AppCompatActivity() {
         quote = intent.getStringExtra("quote").toString()
         author = intent.getStringExtra("author").toString()
         id = intent.getStringExtra("id").toString()
+        imgName=intent.getStringExtra("imageName").toString()
         val uriString = intent.getStringExtra("uri")
         uri = if (uriString != null) Uri.parse(uriString) else null
         //----- set those value in their position ------//
@@ -58,14 +59,6 @@ class UpdateActivity : AppCompatActivity() {
             Toast.makeText(this,"Deleted Quote", Toast.LENGTH_SHORT).show()
         }
         binding.updateQuote.setOnClickListener {
-//            val quoteMap = mutableMapOf<String, Any>()
-//            quoteMap["id"] = id
-//            quoteMap["quote"] =quote
-//            quoteMap["author"]=author
-//            dataReference.child(id).updateChildren(quoteMap)
-//                .addOnCompleteListener { task ->
-//                    if (task.isSuccessful) Toast.makeText(this, "Updated", Toast.LENGTH_SHORT).show()
-//                }
             uploadPhoto()
         }
         binding.addNewImage.setOnClickListener { chooseImage() }
@@ -81,11 +74,13 @@ class UpdateActivity : AppCompatActivity() {
             activityResultLauncher.launch(intent)
         }
     }
-    private fun updateQuote(url: String){
-        val quoteBundle=Quote(id,binding.quote.text.toString(),binding.author.text.toString(),url)
+    private fun updateQuote(url: String,imageName:String){
+        val quoteBundle=Quote(id,binding.quote.text.toString(),binding.author.text.toString(),url,imageName)
         dataReference.child(id).setValue(quoteBundle).addOnCompleteListener { task->
             if(task.isSuccessful) {
                 Toast.makeText(this,"Successful", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this,MainActivity::class.java))
+                finish()
             }
             else Toast.makeText(this,task.exception.toString(), Toast.LENGTH_SHORT).show()
         }
@@ -112,15 +107,14 @@ class UpdateActivity : AppCompatActivity() {
         }
     }
     private fun uploadPhoto(){
-        val imageName= UUID.randomUUID().toString()
-        val imageReference=storageReference.child("images").child(imageName)
+        val imageReference=storageReference.child("images").child(imgName!!)
         uri?.let { uri->
             imageReference.putFile(uri).addOnSuccessListener {
                 Toast.makeText(this,"Image Uploaded",Toast.LENGTH_SHORT).show()
-                val myUploadImageRef=storageReference.child("images").child(imageName)
+                val myUploadImageRef=storageReference.child("images").child(imgName!!)
                 myUploadImageRef.downloadUrl.addOnSuccessListener {
                     val imageURL=uri.toString()
-                    updateQuote(imageURL)
+                    updateQuote(imageURL,imgName!!)
                 }
             }.addOnFailureListener {
                 Toast.makeText(this,"Failed",Toast.LENGTH_SHORT).show()

@@ -37,21 +37,24 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import java.lang.Exception
 
-data class Quote(var id:String?,var quote:String?,var author:String?,var imageURL:String?){
-    constructor() : this(null,null, null,null)
+data class Quote(var id:String?,var quote:String?,var author:String?,var imageURL:String?,var imageName:String?){
+    constructor() : this(null,null, null,null,null)
 }
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    private var imageUri:Uri?=null
     private var quoteList=ArrayList<Quote>()
     private  lateinit var quoteAdapter:QuoteAdapter
+
     private val database=FirebaseDatabase.getInstance()
     private val dataReference=database.reference.child("Quote")
+    private val firebaseStorage=FirebaseStorage.getInstance()
+    val storageReference=firebaseStorage.reference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityMainBinding.inflate(layoutInflater)
@@ -69,7 +72,10 @@ class MainActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-               val id= quoteAdapter.getQuoteId(viewHolder.adapterPosition)
+                val id= quoteAdapter.getQuoteId(viewHolder.adapterPosition)
+                val name=quoteAdapter.getImageName(viewHolder.adapterPosition)
+                val imageReference= name?.let { storageReference.child("images").child(it) }
+                imageReference?.delete()
                 dataReference.child(id).removeValue()
                 Toast.makeText(applicationContext,"Deleted Quote",Toast.LENGTH_SHORT).show()
             }
@@ -94,30 +100,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-//    //======= for controlling the menu item =====//
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.menu_option,menu)
-//        return true
-//    }
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        if (item.itemId==R.id.logout){
-//            showDialogConfirm()
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
-//    private fun showDialogConfirm(){
-//        val dialog=AlertDialog.Builder(this)
-//        dialog.setTitle("Logout")
-//        dialog.setMessage("Are you sure to log out?")
-//        dialog.setPositiveButton("Yes",DialogInterface.OnClickListener { dialog, which ->
-//            startActivity(Intent(this,LoginActivity::class.java))
-//            finish()
-//        })
-//        dialog.setNegativeButton("No",DialogInterface.OnClickListener { dialog, which ->
-//            dialog.dismiss()
-//        })
-//        dialog.create().show()
-//    }
 }
 
 class QuoteAdapter(private val context: MainActivity, private val dataList: List<Quote>,val dataReference: DatabaseReference?):RecyclerView.Adapter<QuoteAdapter.MyViewHolder>(){
@@ -146,6 +128,7 @@ class QuoteAdapter(private val context: MainActivity, private val dataList: List
         intent.putExtra("author",dataList[position].author)
         intent.putExtra("id",dataList[position].id)
         intent.putExtra("uri",uri.toString())
+        intent.putExtra("imageName",dataList[position].imageName)
         holder.quoteText.setOnClickListener {
             context.startActivity(intent)
         }
@@ -153,5 +136,8 @@ class QuoteAdapter(private val context: MainActivity, private val dataList: List
     override fun getItemCount(): Int {return dataList.size}
     fun getQuoteId(position: Int):String{
         return dataList[position].id.toString()
+    }
+    fun getImageName(position:Int): String? {
+        return dataList[position].imageName
     }
 }

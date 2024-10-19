@@ -31,7 +31,6 @@ class AddQuoteActivity : AppCompatActivity() {
     private var firebaseStorage=FirebaseStorage.getInstance()
     private var storageReference=firebaseStorage.reference
 
-    private var quoteList=ArrayList<Quote>()
     private val database= FirebaseDatabase.getInstance()
     private val dataReference=database.reference.child("Quote")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,16 +55,17 @@ class AddQuoteActivity : AppCompatActivity() {
             activityResultLauncher.launch(intent)
         }
     }
-    private fun addQuote(url:String) {
+    private fun addQuote(url:String,name:String) {
         val id=dataReference.push().key.toString()
-        val quoteBundle=Quote(id,binding.quote.text.toString(),binding.author.text.toString(),url)
+        val quoteBundle=Quote(id,binding.quote.text.toString(),binding.author.text.toString(),url,name)
         dataReference.child(id).setValue(quoteBundle).addOnCompleteListener { task->
             if(task.isSuccessful) {
                 Toast.makeText(this,"Successful", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this,MainActivity::class.java))
+                finish()
             }
             else Toast.makeText(this,task.exception.toString(), Toast.LENGTH_SHORT).show()
         }
-        quoteList.clear()
     }
     private fun registerActivityForResult(){
         activityResultLauncher=registerForActivityResult(ActivityResultContracts.StartActivityForResult(), ActivityResultCallback{ result->
@@ -97,7 +97,7 @@ class AddQuoteActivity : AppCompatActivity() {
                 val myUploadImageRef=storageReference.child("images").child(imageName)
                 myUploadImageRef.downloadUrl.addOnSuccessListener {
                     val imageURL=uri.toString()
-                    addQuote(imageURL)
+                    addQuote(imageURL,imageName)
                 }
             }.addOnFailureListener {
                 Toast.makeText(this,"Failed",Toast.LENGTH_SHORT).show()
